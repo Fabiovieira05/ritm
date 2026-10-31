@@ -3,6 +3,7 @@
 Esta cópia mantém a experiência de treino e alimentação da release **1.3.9-personal.3** e adapta os títulos e textos da interface para português brasileiro. Os nomes dos exercícios e os cálculos foram preservados.
 
 - [Documentação em português: origem, alterações, testes, segurança e backup](docs/fabio-ptbr.md)
+- [Primeira etapa visual: fundo escuro e cor de destaque](docs/visual-dark-etapa-1.md)
 - Branch de trabalho: `fabio/pt-br-personal-3`; branch de origem preservada: `personal`.
 - Cópia Android de teste: **RITM Teste BR**, identificador `local.opengym.personal.test`, para coexistir com o aplicativo atual.
 - Instalação e restauração dos dados reais no celular ainda precisam de conferência. Faça backup antes de importar na cópia de teste.

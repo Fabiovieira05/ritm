@@ -34,26 +34,19 @@
 .ritm-license-text details { border-top:1px solid var(--separator); padding:14px 0; }
 .ritm-license-text summary { cursor:pointer; font-size:14px; }
 .ritm-license-text pre { white-space:pre-wrap; overflow-wrap:anywhere; font:11px/1.7 monospace; color:var(--label-2); }
+/* Keep the neutral surfaces, semantic colours and per-accent contrast pairs
+   from index.css. Personal screens inherit them instead of pinning lime. */
 :root {
-  --bg:#090c11; --bg-el:#10151d; --surface:#151b24; --surface-2:#202936; --surface-3:#303d4b;
-  --label:#f7f9fc; --label-2:#a9b5c6; --label-3:#8998ac; --label-4:#66788f;
-  --sep:#303d4b; --sep-op:#273240; --green:#ddff73;
-  --r-sm:10px; --r:14px; --r-lg:20px; --r-xl:26px; --r-card:22px;
-  --on-acc:#17200b; --acc-2:#c2e957; --pad:20px;
-  --ritm-shadow:0 16px 40px -24px #000c;
+  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:16px;
+  --pad:20px;
+  --ritm-shadow:none;
 }
-:root[data-theme="light"] {
-  --bg:#eff2f7; --bg-el:#f7f9fc; --surface:#ffffff; --surface-2:#e9edf4; --surface-3:#dbe2ec;
-  --label:#101928; --label-2:#52647b; --label-3:#667a94; --label-4:#8395ad;
-  --sep:#d6dfeb; --sep-op:#dce4ef; --green:#456400;
-  --on-acc:#fff; --acc-2:#354d00;
-  --ritm-shadow:0 16px 40px -24px #25406344;
-}
-:root[data-accent="lime"] { --acc:var(--green); --on-acc:#17200b; --acc-2:#c2e957; }
-:root[data-theme="light"][data-accent="lime"] { --acc:var(--green); --on-acc:#fff; --acc-2:#354d00; }
+/* Filled buttons use small text; black exceeds 4.5:1 on all eight
+   accents in both themes. Do not rely on the large-text threshold. */
+:root[data-theme][data-accent] { --on-acc:#000; }
 body { font-family:Manrope,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:16px; line-height:1.45; letter-spacing:-.018em; isolation:isolate; }
-body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:-1; background:radial-gradient(ellipse at 100% 0%,#8ae5e218,transparent 50%),radial-gradient(ellipse at -12% 54%,#b4d74814,transparent 45%),linear-gradient(118deg,transparent 39.8%,#aaceff0a 40%,transparent 40.2%),linear-gradient(118deg,transparent 69.8%,#aaceff0a 70%,transparent 70.2%); }
-body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.17; background-image:radial-gradient(#a1b7d7 0.55px,transparent 0.55px); background-size:18px 18px; mask-image:linear-gradient(transparent,#000 50%,transparent); }
+body::before { content:none; }
+body::after { content:none; }
 button,input,textarea,select { font-family:inherit; }
 #app { padding-bottom:calc(164px + var(--sab)); }
 .hdr { margin:16px 0 24px; align-items:center; }
@@ -89,7 +82,7 @@ button,input,textarea,select { font-family:inherit; }
 .ritm-page-brand { display:flex; justify-content:space-between; align-items:center; }
 .ritm-page-brand .iconbtn { width:40px; height:40px; background:var(--surface); border:1px solid var(--sep-op); border-radius:13px; color:var(--label-2); }
 .ritm-home-header .ritm-brand { margin-bottom:12px; }
-.ritm-home-header h1 { margin-top:8px; }
+.ritm-home-header h1 { font-size:32px; line-height:1.15; font-weight:600; letter-spacing:-.035em; }
 .ritm-nutrition-page { gap:18px; }
 .ritm-nutrition-page .card { margin-bottom:0; }
 .ritm-nutrition-page>.hdr { margin:0 0 2px; }
@@ -190,27 +183,27 @@ button,input,textarea,select { font-family:inherit; }
 .ritm-home { display:flex; flex-direction:column; gap:18px; }
 .ritm-home>.card,.ritm-home-overview>.card { margin-bottom:0; }
 .ritm-home-header { margin:4px 0 3px; }
-.ritm-home-header h1 { font-size:40px; line-height:1.05; font-weight:600; letter-spacing:-.055em; }
+.ritm-home-header h1 { font-size:32px; line-height:1.15; font-weight:600; letter-spacing:-.035em; }
 .ritm-home-header .sub { font-size:13px; }
 .ritm-home-header>.iconbtn { width:48px; height:48px; background:var(--surface); border:1px solid var(--sep-op); border-radius:16px; font-size:22px; box-shadow:var(--ritm-shadow); }
-.ritm-workout-hero { position:relative; isolation:isolate; overflow:hidden; background:#244b39; border-radius:28px; padding:24px; color:#eff8eb; min-height:286px; display:flex; flex-direction:column; box-shadow:0 18px 32px -22px #10261f88; }
-:root[data-theme="dark"] .ritm-workout-hero { background:#b8ddbd; color:#193524; }
+.ritm-workout-hero { position:relative; isolation:isolate; overflow:hidden; background:var(--surface); border:1px solid var(--sep-op); border-radius:var(--r-lg); padding:20px; color:var(--label); min-height:220px; display:flex; flex-direction:column; }
+
 .ritm-hero-top { display:flex; justify-content:space-between; align-items:center; gap:12px; position:relative; z-index:1; font-size:11px; opacity:.82; }
 .ritm-hero-top>span:first-child { display:flex; align-items:center; gap:7px; letter-spacing:.1em; text-transform:uppercase; }
 .ritm-hero-top .icn { width:18px; height:18px; }
 .ritm-hero-date { white-space:nowrap; }
-.ritm-workout-hero .today-row { flex:1; background:none; border:0; margin:0; padding:27px 0 22px; display:flex; align-items:flex-start; flex-direction:column; gap:12px; position:relative; z-index:1; max-width:84%; }
+.ritm-workout-hero .today-row { flex:1; background:none; border:0; margin:0; padding:20px 0; display:flex; align-items:flex-start; flex-direction:column; gap:12px; position:relative; z-index:1; max-width:100%; }
 .ritm-workout-hero .today-row .lbl2 { font-size:12px; color:inherit; opacity:.7; margin-bottom:8px; }
 .ritm-workout-hero .today-row .ttl { font-size:31px; line-height:1.12; letter-spacing:-.045em; font-weight:550; color:inherit; max-width:460px; }
 .ritm-workout-hero .today-row .ss { font-size:12px; line-height:1.5; color:inherit; opacity:.76; margin-top:10px; }
 .ritm-workout-hero .today-row .tag { background:#ffffff1c!important; color:inherit!important; border:1px solid currentColor; font-size:11px; padding:3px 8px; opacity:.8; }
 .ritm-workout-hero .today-row>.chev { display:none; }
-.ritm-workout-hero .ritm-hero-action { position:relative; z-index:1; background:#f2f5e8; color:#244b39; min-height:48px; font-size:15px; justify-content:space-between; padding-inline:18px; }
-:root[data-theme="dark"] .ritm-workout-hero .ritm-hero-action { background:#213f2b; color:#f2f5e8; }
+.ritm-workout-hero .ritm-hero-action { position:relative; z-index:1; background:var(--acc); color:var(--on-acc); min-height:48px; font-size:15px; justify-content:space-between; padding-inline:18px; }
+
 .ritm-hero-action .icn { order:2; }
 .ritm-hero-secondary { position:relative; z-index:1; margin-top:4px; text-align:center; }
 .ritm-workout-hero .ritm-hero-secondary .btn { color:inherit; opacity:.78; font-size:11px; min-height:30px; }
-.ritm-workout-art { position:absolute; right:-56px; top:18px; width:230px; height:230px; opacity:.11; pointer-events:none; transform:rotate(-18deg); }
+.ritm-workout-art { display:none; }
 .ritm-workout-art>svg { position:absolute; inset:0; width:100%; height:100%; stroke:currentColor; fill:none; stroke-width:1; }
 .ritm-workout-art>.icn { position:absolute; inset:65px; width:100px; height:100px; --icon-stroke:1; transform:rotate(18deg); }
 .ritm-home-overview { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
@@ -266,9 +259,9 @@ button,input,textarea,select { font-family:inherit; }
   box-shadow:0 10px 32px -14px #0004;
 }
 /* The raised action is independent of the five equal navigation slots. */
-.ritm-bottom-dock { position:fixed; inset-inline:0; bottom:0; z-index:50; background:#111822; border-top:1px solid #34404e; box-shadow:0 -8px 32px -18px #000b; }
+.ritm-bottom-dock { position:fixed; inset-inline:0; bottom:0; z-index:50; background:var(--bg-el); border-top:1px solid var(--sep-op); }
 #tabbar { position:relative; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:center; padding:8px 8px calc(8px + var(--sab)); gap:3px; }
-#tabbar button.start { position:absolute; inset-inline:auto; left:50%; right:auto; top:-63px; margin:0; transform:translateX(-50%); flex-direction:row; gap:8px; width:max-content; max-width:calc(100vw - 40px); min-width:128px; height:51px; min-height:51px; padding:0 20px 0 10px; background:#ddff73; color:#17200b; border:1px solid #e8ffa0; border-radius:18px; box-shadow:0 8px 28px -10px #ddff7355,0 4px 16px #0004; }
+#tabbar button.start { position:absolute; inset-inline:auto; left:50%; right:auto; top:-63px; margin:0; transform:translateX(-50%); flex-direction:row; gap:8px; width:max-content; max-width:calc(100vw - 40px); min-width:128px; height:51px; min-height:51px; padding:0 20px 0 10px; background:var(--acc); color:var(--on-acc); border:1px solid var(--acc); border-radius:18px; box-shadow:none; }
 #tabbar button.start .cir { position:relative; width:33px; height:33px; border-radius:11px; background:transparent; color:inherit; box-shadow:none; }
 #tabbar button.start span { color:inherit; font-size:13px; font-weight:800; }
 #tabbar button.start.rec { background:var(--orange); border-color:var(--orange); color:#10151d; }
@@ -276,20 +269,20 @@ button,input,textarea,select { font-family:inherit; }
 #tabbar button.start.rec span { color:inherit; }
 #tabbar button.start.rec .cir::after { display:none; }
 #tabbar button.start:active { transform:translateX(-50%) scale(.96); }
-.ritm-program-hero,.ritm-workout-hero,.ritm-stats-hero { --label:#f7f9fc; --label-2:#b6c4d5; --label-3:#91a5bd; --surface:#1b2732; --surface-2:#273640; --sep-op:#354335; --acc:#ddff73; --on-acc:#17200b; --acc-soft:#ddff731c; color:var(--label); background:radial-gradient(ellipse at 105% 15%,#c1ee6c30,transparent 55%),linear-gradient(120deg,#1a2533,#0e141c 62%); border:1px solid #354335; box-shadow:0 20px 48px -24px #050d1b70; position:relative; overflow:hidden; }
-.ritm-program-hero::before,.ritm-workout-hero::before { content:''; position:absolute; width:480px; height:480px; border:1px solid #ddff7338; border-radius:50%; right:-230px; top:-240px; box-shadow:0 0 0 35px #ddff7307,0 0 0 70px #ddff7306,0 0 0 106px #ddff7305; pointer-events:none; }
+.ritm-program-hero,.ritm-workout-hero,.ritm-stats-hero { color:var(--label); background:var(--surface); border:1px solid var(--sep-op); box-shadow:none; position:relative; overflow:hidden; }
+.ritm-program-hero::before,.ritm-workout-hero::before { content:none; }
 .ritm-program-hero>div,.ritm-workout-hero>div,.ritm-workout-hero>button { position:relative; }
 .ritm-program-hero h2 { font-size:34px; font-weight:750; letter-spacing:-.065em; max-width:380px; line-height:1.08; }
-.ritm-program-hero>.icn { opacity:.5; color:#ddff73; transform:rotate(-14deg); filter:drop-shadow(0 8px 28px #ddff7322); }
+.ritm-program-hero>.icn { opacity:.3; color:var(--acc); filter:none; }
 .ritm-program-counts strong { font-weight:750; }
-.ritm-workout-hero .ritm-hero-action,.ritm-program-hero .btn.primary { color:#17200b; background:linear-gradient(110deg,#e7ff9a,#cbf357); font-weight:800; box-shadow:0 5px 24px -12px #ddff73b0; }
-.ritm-stats-hero .tile { background:#ffffff07; border:1px solid #ffffff10; }
+.ritm-workout-hero .ritm-hero-action,.ritm-program-hero .btn.primary { color:var(--on-acc); background:var(--acc); font-weight:600; box-shadow:none; }
+.ritm-stats-hero .tile { background:var(--surface-2); border:1px solid var(--sep-op); }
 .ritm-stats-hero .tile .v { font-weight:750; }
 .ritm-nutrition-summary { background:radial-gradient(ellipse at 100% 0%,var(--acc-soft),transparent 60%),var(--surface); }
 .ritm-brand>span { font-weight:800; letter-spacing:.16em; }
 .ritm-brand svg { background:var(--acc); color:var(--on-acc); box-shadow:0 4px 18px -10px var(--acc); }
-.hdr h1,.ritm-home-header h1 { font-weight:750; letter-spacing:-.06em; }
-.btn.primary { font-weight:750; box-shadow:0 7px 22px -15px var(--acc); }
+.hdr h1,.ritm-home-header h1 { font-weight:600; letter-spacing:-.035em; }
+.btn.primary { font-weight:600; box-shadow:none; }
 .card,.sect-b,.list { transition:background .2s,border-color .2s,box-shadow .2s; }
 .ritm-loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; min-height:180px; color:var(--label-2); }
 .ritm-loader.full { min-height:100dvh; background:radial-gradient(ellipse at 60% 25%,var(--acc-soft),transparent 55%),var(--bg); }
@@ -303,15 +296,15 @@ button,input,textarea,select { font-family:inherit; }
 .ritm-button-spinner { width:17px; height:17px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:ritm-orbit .8s linear infinite; flex:none; }
 @keyframes ritm-orbit { to { transform:rotate(360deg); } }
 @keyframes ritm-pulse { 50% { height:20px; opacity:.45; } }
-#tabbar,:root[data-theme="light"] #tabbar { background:#111822; border-color:#34404e; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
-#tabbar button { color:#b4c1d2; }
-#tabbar button.on:not(.start) { background:#ddff7316; color:#ddff73; }
-.ritm-assistant-orb { flex:none; display:block; width:40px; height:40px; border-radius:50%; background:radial-gradient(circle at 30% 25%,#f2ffdd 0%,#e4ff91 10%,transparent 40%),conic-gradient(from 45deg,#b6f763,#73dae3,#859aff,#b6f763); box-shadow:inset -5px -6px 12px #173b6977,inset 3px 3px 9px #f1ffe366,0 0 22px #7bdece33; animation:ritm-assistant-breathe 4s ease-in-out infinite; }
-.ritm-assistant-launcher { position:absolute; right:max(16px,calc((100% - 620px)/2 + 12px)); bottom:calc(84px + var(--sab)); width:52px; height:52px; display:grid; place-items:center; background:#141f2d; border:1px solid #4b6573; border-radius:18px; box-shadow:0 8px 26px #0005; }
+#tabbar,:root[data-theme="light"] #tabbar { background:var(--bg-el); border-color:var(--sep-op); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+#tabbar button { color:var(--label-2); }
+#tabbar button.on:not(.start) { background:var(--acc-soft); color:var(--acc); }
+.ritm-assistant-orb { flex:none; display:block; width:40px; height:40px; border-radius:50%; background:var(--acc); box-shadow:inset 0 0 0 10px var(--surface); border:1px solid var(--acc-line); }
+.ritm-assistant-launcher { position:absolute; right:max(16px,calc((100% - 620px)/2 + 12px)); bottom:calc(84px + var(--sab)); width:52px; height:52px; display:grid; place-items:center; background:var(--surface); border:1px solid var(--sep-op); border-radius:18px; box-shadow:none; }
 .ritm-assistant-launcher .ritm-assistant-orb { width:30px; height:30px; }
-.ritm-assistant-launcher-label { position:absolute; right:3px; bottom:1px; color:#efffd2; font-size:9px; font-weight:800; background:#141f2d; border-radius:5px; padding:0 3px; }
+.ritm-assistant-launcher-label { position:absolute; right:3px; bottom:1px; color:var(--acc); font-size:9px; font-weight:800; background:var(--surface); border-radius:5px; padding:0 3px; }
 body.resting .ritm-assistant-launcher,:root[data-native-kb] .ritm-assistant-launcher { visibility:hidden; }
-.ritm-home-assistant { grid-column:1/-1; display:flex; align-items:center; gap:13px; width:100%; text-align:start; padding:16px 18px; color:var(--label); background:linear-gradient(110deg,var(--surface),var(--surface-2)); border:1px solid var(--sep-op); border-radius:22px; }
+.ritm-home-assistant { grid-column:1/-1; display:flex; align-items:center; gap:13px; width:100%; text-align:start; padding:16px 18px; color:var(--label); background:var(--surface); border:1px solid var(--sep-op); border-radius:var(--r-lg); }
 .ritm-home-assistant>div { flex:1; min-width:0; }
 .ritm-home-assistant strong { display:block; font-size:15px; font-weight:750; }
 .ritm-home-assistant div>span { display:block; font-size:12px; color:var(--label-2); margin-top:4px; }
@@ -385,3 +378,8 @@ body.resting .ritm-assistant-launcher,:root[data-native-kb] .ritm-assistant-laun
 @media (max-width:760px) { .ritm-lock-page { flex-direction:column; gap:0; } .ritm-lock-visual { width:148px; height:112px; margin:-8px 0 24px; } .ritm-lock-visual>.icn { width:44px; height:44px; } .ritm-lock-card { padding:24px; max-width:400px; } .ritm-lock-card>.ritm-brand { margin-bottom:30px; } .ritm-lock-card h1 { font-size:35px; } .ritm-login-page { padding:24px; margin-block:2vh; } }
 @media (max-width:600px) { .ritm-program-hero h2 { font-size:29px; max-width:220px; } .ritm-program-hero>.icn { width:72px; height:72px; align-self:center; } #tabbar button { font-size:10px; } }
 @media (prefers-reduced-motion:reduce) { .ritm-loader-orbit>i,.ritm-loader-pulse i,.ritm-button-spinner { animation:none; } .card,.sect-b,.list { transition:none; } }
+
+/* First visual pass: quiet Home surfaces; preserve every action and metric. */
+.ritm-home .ritm-home-health,.ritm-home .ritm-home-training { background:var(--surface); }
+.ritm-home .ritm-icon-tile { background:var(--acc-soft); color:var(--acc); }
+.ritm-home .ritm-home-assistant strong { font-weight:600; }
