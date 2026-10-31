@@ -6,7 +6,7 @@
 - Release: `ritm-v1.3.9-personal.3`, branch de origem `personal`.
 - Commit da tag e da branch na consulta: `95f41277c46ae34f2c66142d09ae61ccf9a0bd98`.
 - APK original baixado e conferido: SHA-256 `109302151e6bcaf1e260ce51ee0112ba6092c8466aa543f272ebb94bd392326a`, igual ao publicado na release.
-- Branch local das alterações: `fabio/pt-br-personal-3`. Nenhuma alteração enviada ao GitHub.
+- Branch das alterações: `fabio/pt-br-personal-3`, enviada por autorização do proprietário para https://github.com/Fabiovieira05/ritm . O repositório de blizzardsnake permanece como origem de referência, sem alterações enviadas a ele.
 
 ## O que existe
 
@@ -68,3 +68,7 @@ As outras línguas foram preservadas. Nomes de exercícios, alimentos cadastrado
 - Não testado: instalação física, restauração do backup pessoal, Health Connect no celular, câmera, notificações reais, biometria e respostas de IA ao vivo. Nenhum aplicativo foi publicado ou instalado no celular.
 
 Ferramentas oficiais consultadas: https://developer.android.com/studio e https://learn.microsoft.com/en-us/java/openjdk/download-major-urls .
+
+## Continuidade no GitHub
+
+O desenvolvimento pessoal fica em https://github.com/Fabiovieira05/ritm/tree/fabio/pt-br-personal-3 . A branch `personal` preserva a origem. O primeiro commit de adaptação é `9a81fb4`. Os próximos ajustes devem continuar em etapas pequenas, com commits descritivos e atualização deste registro de testes. A criação do repositório e o envio do código foram autorizados em conversa pelo proprietário. Nenhum APK foi publicado como release e nenhuma alteração foi enviada ao autor original.

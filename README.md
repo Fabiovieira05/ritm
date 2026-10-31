@@ -1,3 +1,17 @@
+# RITM — adaptação pessoal em português brasileiro
+
+Esta cópia mantém a experiência de treino e alimentação da release **1.3.9-personal.3** e adapta os títulos e textos da interface para português brasileiro. Os nomes dos exercícios e os cálculos foram preservados.
+
+- [Documentação em português: origem, alterações, testes, segurança e backup](docs/fabio-ptbr.md)
+- Branch de trabalho: `fabio/pt-br-personal-3`; branch de origem preservada: `personal`.
+- Cópia Android de teste: **RITM Teste BR**, identificador `local.opengym.personal.test`, para coexistir com o aplicativo atual.
+- Instalação e restauração dos dados reais no celular ainda precisam de conferência. Faça backup antes de importar na cópia de teste.
+- Código sob AGPL-3.0-or-later; atribuições e avisos originais seguem abaixo e em [NOTICE.md](NOTICE.md).
+
+Os resultados dos testes e os alertas herdados das dependências estão no guia. Os próximos ajustes serão documentados em commits pequenos neste repositório. APKs não são publicados automaticamente.
+
+---
+
 # RITM — личный тренер и дневник питания
 
 Персональный Android-форк openGym: тренировки, питание, недельный анализ, прогресс и восстановление. Исходная карта недельной нагрузки на мышцы сохранена.
