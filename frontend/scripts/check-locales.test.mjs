@@ -31,6 +31,17 @@ const run = packs => {
 const de = { Save: 'Speichern', 'Next pass starts {0}': 'Der nächste Durchgang beginnt {0}' }
 
 describe('check-locales.mjs', () => {
+  it('allows the reviewed Brazilian-only additions without changing other languages', () => {
+    const r = run({ de, 'pt-BR': { ...de, Retry: 'Tentar novamente' } })
+    expect(r.code).toBe(0)
+  })
+
+  it('still rejects unreviewed Brazilian-only additions', () => {
+    const r = run({ de, 'pt-BR': { ...de, 'Unexpected new label': 'Novo texto' } })
+    expect(r.code).toBe(1)
+    expect(r.out).toContain('only here')
+  })
+
   it('passes packs that agree', () => {
     const r = run({ de, fr: { Save: 'Enregistrer', 'Next pass starts {0}': 'Le prochain cycle commence {0}' } })
     expect(r.out).toContain('in sync')

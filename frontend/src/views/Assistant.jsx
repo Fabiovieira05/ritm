@@ -39,7 +39,7 @@ export default function Assistant() {
     </div>
     <section className="ritm-assistant-hero">
       <div className="ritm-assistant-orbit" aria-hidden="true"><span className="ritm-assistant-orb" /><i /><i /></div>
-      <span className="ritm-eyebrow">RITM INTELLIGENCE</span>
+      <span className="ritm-eyebrow">{t('RITM INTELLIGENCE')}</span>
       <h2>{t('A little clarity. Every day.')}</h2>
       <p>{t('Your training, food diary and recovery in one place. Suggestions become changes only after your approval.')}</p>
       <button className="ritm-assistant-status" disabled={checking} onClick={() => connected ? nav('/coach') : connectionRef.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })}><i />{t(checking ? 'Checking connection…' : connected ? 'Connected · ready when you are' : 'Connect free AI once')}<Icon name="arrowUp" /></button>

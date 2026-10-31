@@ -20,7 +20,7 @@ export default function FreeAIConnect({onConnected}) {
     try { await openRouterAuth.complete(code); setCode(''); setPending(false); onConnected?.() } catch(error) {setMessage(t(error.message))} finally {setBusy(false)}
   }
   return <section className="card ritm-free-ai-card personal-stack">
-    <span className="ritm-eyebrow">RITM · FREE AI</span><h2>OpenRouter</h2>
+    <span className="ritm-eyebrow">{t('RITM · FREE AI')}</span><h2>OpenRouter</h2>
     <p>{t('Free AI: up to 50 API requests a day. RITM also limits usage to 200 requests in seven days.')}</p>
     <p className="small muted">{t('Sign in once, authorize RITM, then paste the one-time connection code here. Your API key is saved automatically on this phone.')}</p>
     <Button variant="primary" icon="sparkles" busy={busy} onClick={begin}>{t(pending?'Open sign-in again':'Sign in to OpenRouter')}</Button>

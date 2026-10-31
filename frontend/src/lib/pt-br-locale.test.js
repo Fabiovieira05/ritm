@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { createHash } from 'node:crypto'
 import pt from '../locales/pt.js'
 import ptBR, { PT_BR_OVERRIDES } from '../locales/pt-BR.js'
+import personal from './personal/en.js'
 import { DATE_LOCALES, LANGS } from './i18n-core.js'
 
 const placeholders = value => [...String(value).matchAll(/\{\d+\}/g)].map(match => match[0]).sort()
@@ -15,10 +16,21 @@ describe('Brazilian Portuguese locale', () => {
   })
 
   test('matches the source key set and preserves interpolation placeholders', () => {
-    expect(Object.keys(ptBR).sort()).toEqual(Object.keys(pt).sort())
+    expect(Object.keys(ptBR).sort()).toEqual([...Object.keys(pt), 'Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M'].sort())
     for (const [source, translated] of Object.entries(ptBR)) {
       expect(placeholders(translated), source).toEqual(placeholders(source))
     }
+  })
+
+  test('translates the personal edition instead of falling back to English', () => {
+    const universal = new Set(['kg', 'lb', 'g', 'kcal', 'P', 'C', 'bpm', 'Manual'])
+    for (const key of Object.keys(personal)) {
+      expect(ptBR[key], key).toEqual(expect.any(String))
+      if (!universal.has(key)) expect(ptBR[key], key).not.toBe(key)
+    }
+    expect(ptBR['Your day']).toBe('Seu dia')
+    expect(ptBR['Retry']).toBe('Tentar novamente')
+    expect(ptBR['F']).toBe('G')
   })
 
   test('makes every inherited pt-PT value an explicit reviewed snapshot', () => {

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rest_countdown_channel_name">Contagem de descanso</string>
+    <string name="rest_channel_name">Temporizador de descanso</string>
+    <string name="rest_quiet_channel_name">Temporizador de descanso, sem vibração</string>
+    <string name="rest_channel_desc">Descanso entre séries no painel de notificações. A tela de bloqueio só mostra quando as notificações são permitidas nela.</string>
+</resources>

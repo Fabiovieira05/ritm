@@ -38,6 +38,10 @@ const seen = new Map()
 for (const dict of locales.values()) for (const k of Object.keys(dict)) seen.set(k, (seen.get(k) || 0) + 1)
 const union = [...seen.keys()]
 
+// This personal fork adds these UI translations only for Brazilian Portuguese.
+// Other packs retain their English fallback; shared keys still require full coverage.
+const ptBROnly = new Set(['Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M'])
+
 // t('…{0}…', x) substitutes by index, so a translation that loses a {0} drops the number out of
 // the sentence and one that invents a {1} prints the braces at the reader. The KEY is the English
 // original — English ships no pack — so the key is the reference. By multiset, not in order: a
@@ -47,8 +51,8 @@ const marks = s => [...String(s).matchAll(/\{\d+\}/g)].map(m => m[0]).sort().joi
 let failed = false
 for (const [lang, dict] of locales) {
   const keys = new Set(Object.keys(dict))
-  const missing = union.filter(k => !keys.has(k))
-  const orphans = union.filter(k => keys.has(k) && seen.get(k) === 1)
+  const missing = union.filter(k => !keys.has(k) && !(lang !== 'pt-BR' && ptBROnly.has(k)))
+  const orphans = union.filter(k => keys.has(k) && seen.get(k) === 1 && !(lang === 'pt-BR' && ptBROnly.has(k)))
   // A blank value is worse than no translation: the English fallback only runs for a key that
   // is ABSENT, so an empty string reaches the screen as an empty screen.
   const blank = Object.entries(dict).filter(([, v]) => typeof v !== 'string' || !v.trim()).map(([k]) => k)
@@ -69,4 +73,4 @@ if (failed) {
   process.exit(1)
 }
 
-console.log(`${locales.size} locales, ${union.length} keys each — in sync.`)
+console.log(`${locales.size} locales, ${union.length} keys including reviewed pt-BR additions — in sync.`)

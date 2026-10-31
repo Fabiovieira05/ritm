@@ -85,7 +85,7 @@ export default function PersonalFoodPicker({ onSelect, onManual, onEdit }) {
       {foods.map(food => <div className="personal-food-row" key={food.id}>
         <button type="button" className="personal-food-select" onClick={() => onSelect(food)}>
           <strong>{food.name}</strong>{food.brand && <span className="small muted">{food.brand}</span>}
-          <span className="small muted">{nutrientText(food.nutrients)} / {food.basis === '100ml' ? t('100 ml — density required') : '100 г'}</span>
+          <span className="small muted">{nutrientText(food.nutrients)} / {food.basis === '100ml' ? t('100 ml — density required') : `100 ${t('g')}`}</span>
           <span className="small muted">{food.source?.type === 'usda' ? 'USDA' : food.source?.type === 'openfoodfacts' ? 'Open Food Facts' : food.source?.type === 'recipe' ? t('Recipe') : t('Manual')}</span>
         </button>
         <div className="personal-stack">
