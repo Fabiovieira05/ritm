@@ -206,17 +206,17 @@ describe('not connected — it says so, and what to do', () => {
 })
 
 describe('no server at all', () => {
-  it('a phone kept local says so quietly, with a way to connect', () => {
+  it('keeps deliberate local use quiet and clears the banner spacing', () => {
     mocks.MOBILE = true
     mocks.user = null
     mocks.guest = true
+    mocks.sync = sync('offline', { pending: true })
+    render()
+    expect(bar()).not.toBeNull()
     mocks.sync = sync('local', { server: null })
     render()
-    expect(bar().className).toContain('quiet')
-    expect(text()).toBe('On this phone only — not connected to a server')
-    expect(label()).toBe('Connect')
-    act(() => button().click())
-    expect(openedConnect().dataset.again).toBe('false')
+    expect(bar()).toBeNull()
+    expect(conn()).toBe('')
   })
 
   it('a guest in a browser: "Sign in" leads to Settings, where signing in and creating a profile are', () => {

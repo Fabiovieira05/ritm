@@ -21,6 +21,7 @@ export default function TabBar({ onStart }) {
   const nav = useNavigate()
   const loc = useLocation()
   const S = useStore(s => s.S)
+  const coachLocal = useStore(s => s.coachLocal)
   const user = useStore(s => s.user)
   const isGuest = useStore(s => s.isGuest())
   if (!user && !isGuest) return null
@@ -52,7 +53,7 @@ export default function TabBar({ onStart }) {
       <Tab active={on('library')} icon="list" label={t('Exercises')} onClick={() => nav('/library')} />
       <Tab active={on('nutrition')} icon="nutrition" label={t('Nutrition')} onClick={() => nav('/nutrition')} />
     </nav>
-    {cur !== 'assistant' && cur !== 'protection' && !cur.startsWith('coach') && <button className="ritm-assistant-launcher" onClick={() => nav('/assistant')} aria-label={t('Open assistant')} title={t('Open assistant')}>
+    {coachLocal?.mode !== 'off' && cur !== 'assistant' && cur !== 'protection' && !cur.startsWith('coach') && <button className="ritm-assistant-launcher" onClick={() => nav('/assistant')} aria-label={t('Open assistant')} title={t('Open assistant')}>
       <span className="ritm-assistant-orb" aria-hidden="true" /><span className="ritm-assistant-launcher-label">AI</span>
     </button>}
     </div>

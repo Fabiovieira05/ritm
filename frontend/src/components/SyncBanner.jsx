@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
+import { MOBILE } from '../lib/mobile.js'
 import { DEMO } from '../lib/demo.js'
 import { connectionView, actionLabel, syncNowWithToast, pairAgain, connectServer, signInAgain, useOnline } from './ServerSync.jsx'
 import Icon from './Icon.jsx'
@@ -14,8 +15,8 @@ export const PENDING_GRACE_MS = 5000
    unreachable or answering with an error (its HTTP code, for whoever runs it), a server that no
    longer accepts this device, an answer that is not openGym's, and no server at all — a phone
    kept local, a guest in a browser. It cannot be dismissed; it goes when the condition does.
-   The first ones say what is wrong and that the changes are kept here, with the one thing to do
-   about it (retry, pair again, sign in); the deliberate local setup only says so, quietly.
+   The error states say what is wrong and that the changes are kept here, with the one thing to do
+   about it (retry, pair again, sign in); deliberate local Android use stays quiet, with connection details in Settings.
 
    Pinned under the status bar, above the page and the pinned workout and chat headers, below the
    tab bar, the timer and every sheet. Its height goes into --conn on the root, which the page's
@@ -41,7 +42,8 @@ export default function SyncBanner() {
   const view = connectionView(sync, { online })
   // Signed out on the web, the sign-in screen is the whole app: it hears only that the server
   // ended the session, and that the changes are still here.
-  const show = !DEMO && !onboarding && !!view?.banner && (!!user || guest || status === 'auth') && (status !== 'pending' || waited)
+  // Deliberate local use needs no persistent banner; real sync problems still do.
+  const show = !(MOBILE && status === 'local') && !DEMO && !onboarding && !!view?.banner && (!!user || guest || status === 'auth') && (status !== 'pending' || waited)
 
   useLayoutEffect(() => {
     const root = document.documentElement

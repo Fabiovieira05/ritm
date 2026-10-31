@@ -16,11 +16,12 @@ vi.mock('react-router-dom', () => ({
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-let host, root, originalS, originalUser
+let host, root, originalS, originalUser, originalCoach
 
 beforeEach(() => {
   nav.mockClear()
   const store = useStore.getState()
+  originalCoach = store.coachLocal
   originalS = store.S
   originalUser = store.user
   useStore.setState({ S: JSON.parse(JSON.stringify(DEF)), user: { id: 1, name: 'test' } })
@@ -32,12 +33,23 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount())
   host.remove()
-  useStore.setState({ S: originalS, user: originalUser })
+  useStore.setState({ S: originalS, user: originalUser, coachLocal: originalCoach })
 })
 
 const tabs = () => [...host.querySelectorAll('#tabbar button')]
 
 describe('the tab bar across a store write', () => {
+  it('hides the floating assistant when disabled and restores it when enabled', () => {
+    useStore.setState({ coachLocal: { mode: 'byok' } })
+    act(() => root.render(<TabBar onStart={() => {}} />))
+    expect(host.querySelector('.ritm-assistant-launcher')).not.toBeNull()
+    act(() => useStore.setState({ coachLocal: { mode: 'off' } }))
+    expect(host.querySelector('.ritm-assistant-launcher')).toBeNull()
+    expect(host.querySelector('#tabbar .start')).not.toBeNull()
+    act(() => useStore.setState({ coachLocal: { mode: 'server' } }))
+    expect(host.querySelector('.ritm-assistant-launcher')).not.toBeNull()
+  })
+
   it('opens the built-in assistant without requiring an enabled provider', () => {
     act(() => root.render(<TabBar onStart={() => {}} />))
     const entry = host.querySelector('button[aria-label="Open assistant"]')
