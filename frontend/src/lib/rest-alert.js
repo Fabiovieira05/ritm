@@ -10,6 +10,7 @@
 // The web build keeps Web Push (useUI). This file no-ops there; MOBILE is a build-time flag.
 import { t } from './i18n-core.js'
 import { ACCENTS, ACCENT_INK, argb } from './format.js'
+import { customAccentPalette } from './accent.js'
 import { MOBILE, isAndroid } from './mobile.js'
 
 export const REST_ALERT_ID = 42
@@ -22,7 +23,9 @@ export const REST_QUIET_CHANNEL_ID = 'rest-over-quiet'
 // One object the native side schedules. Public + high is what the notification shade can show.
 // The lock screen follows the user's notification settings.
 export function accentColors(key) {
-  const k = ACCENTS[key] ? key : 'lime'
+  const custom = customAccentPalette(key, globalThis.document?.documentElement.dataset.theme)
+  if (custom) return { accent: argb(custom.color), ink: argb(custom.ink) }
+  const k = Object.hasOwn(ACCENTS, key) ? key : 'lime'
   return { accent: argb(ACCENTS[k]), ink: argb(ACCENT_INK[k]) }
 }
 
@@ -134,6 +137,7 @@ export function setRestAccent(key) {
   })
 }
 
+let permissionRequest = null
 async function ensureNotifPermission() {
   try {
     const { LocalNotifications } = await import('@capacitor/local-notifications')
@@ -151,7 +155,6 @@ async function deliver(alert) {
   const p = await restPlugin()
   if (!p) return 'skipped'
   const { RestAlert } = p
-  await ensureNotifPermission()
   // Sound still schedules when notification permission is missing: the alarm tone does
   // not need it. The notification does, which is why we ask above.
   await RestAlert.schedule({
@@ -176,6 +179,8 @@ async function deliver(alert) {
     accent: alert.accent,
     ink: alert.ink,
   })
+  // A pending permission dialog must not delay arming the timer.
+  if (!permissionRequest) permissionRequest = ensureNotifPermission().finally(() => { permissionRequest = null })
   return 'android'
 }
 

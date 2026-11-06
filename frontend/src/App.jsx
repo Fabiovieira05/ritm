@@ -4,6 +4,7 @@ import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { bindUI } from './components/ui.jsx'
 import { ACCENTS, setWeightDecimals } from './lib/format.js'
+import { customAccentPalette } from './lib/accent.js'
 import { setLang, useLang, baseLang } from './lib/i18n.js'
 import { effectiveLang } from './lib/default-lang.js'
 import { setPlayOnSilent, setVibrate } from './lib/sound.js'
@@ -67,7 +68,12 @@ const resolveTheme = theme => theme === 'light' || theme === 'dark'
 function applyPrefs(theme, accent) {
   const de = document.documentElement
   de.dataset.theme = resolveTheme(theme)
-  de.dataset.accent = ACCENTS[accent] ? accent : 'lime'
+  const custom = customAccentPalette(accent, de.dataset.theme)
+  de.dataset.accent = custom ? 'custom' : Object.hasOwn(ACCENTS, accent) ? accent : 'lime'
+  for (const [name, value] of [['--acc', custom?.color], ['--acc-2', custom?.color], ['--on-acc', custom?.ink]]) {
+    if (value) de.style.setProperty(name, value)
+    else de.style.removeProperty(name)
+  }
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) meta.content = de.dataset.theme === 'light' ? '#f2f2f7' : '#000000'
 }

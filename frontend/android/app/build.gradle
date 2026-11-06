@@ -39,7 +39,7 @@ android {
             // can live on one device. The name/icon label is overridden by the debug resource
             // overlay in src/debug/res. The release build (the "real" app) is untouched.
             applicationIdSuffix ".test"
-            versionNameSuffix ".clean-test.3"
+            versionNameSuffix ".accent-rest-test.4"
         }
     }
 }

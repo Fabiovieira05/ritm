@@ -383,3 +383,11 @@ body.resting .ritm-assistant-launcher,:root[data-native-kb] .ritm-assistant-laun
 .ritm-home .ritm-home-health,.ritm-home .ritm-home-training { background:var(--surface); }
 .ritm-home .ritm-icon-tile { background:var(--acc-soft); color:var(--acc); }
 .ritm-home .ritm-home-assistant strong { font-weight:600; }
+
+/* Settings share the chosen accent; destructive rows keep their warning colour. */
+.ritm-settings .lrow:not(.danger) > .lrow-i { color:var(--acc); background:var(--acc-soft); }
+.ritm-accent-form { display:grid; gap:8px; font-size:13px; }
+.ritm-accent-fields { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.ritm-accent-fields input[type="color"] { width:44px; height:44px; padding:3px; border:1px solid var(--sep); border-radius:var(--r-sm); background:var(--surface-2); }
+.ritm-accent-fields .field { flex:1 1 130px; min-width:0; }
+.ritm-accent-form small { overflow-wrap:anywhere; }

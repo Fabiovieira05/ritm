@@ -1,7 +1,9 @@
 package ch.duartesantos.opengym;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -21,9 +23,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "RestAlert")
 public class RestAlertPlugin extends Plugin {
     private static RestAlertPlugin instance;
-    // Started to stopped is when the page is visible (document.hidden flips with it), so it is
-    // when the page's own countdown plays the end of a rest.
-    private static volatile boolean inFront;
+    private static volatile boolean resumed;
 
     @Override
     public void load() {
@@ -32,17 +32,20 @@ public class RestAlertPlugin extends Plugin {
     }
 
     @Override
-    protected void handleOnStart() {
-        inFront = true;
+    protected void handleOnResume() {
+        resumed = true;
     }
 
     @Override
-    protected void handleOnStop() {
-        inFront = false;
+    protected void handleOnPause() {
+        resumed = false;
     }
 
-    static boolean appInFront() {
-        return inFront;
+    static boolean appInFront(Context ctx) {
+        PowerManager power = ctx.getSystemService(PowerManager.class);
+        KeyguardManager keyguard = ctx.getSystemService(KeyguardManager.class);
+        return resumed && power != null && power.isInteractive()
+                && keyguard != null && !keyguard.isKeyguardLocked();
     }
 
     static void emit(String type, long endsAt, long totalMs, long leftMs, boolean paused) {

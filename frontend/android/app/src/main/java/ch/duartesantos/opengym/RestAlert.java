@@ -11,12 +11,16 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Alarm for the rest between sets. The WebView timer does not run with the screen locked.
@@ -57,8 +61,8 @@ public final class RestAlert {
     private static final int RATE = 22050;
     private static final long[] VIBRATE = new long[] {0, 200, 100, 200, 100, 400};
 
-    private static AudioTrack current;
     private static long firedFor;
+    private static long countdownEnd;
 
     private RestAlert() {}
 
@@ -148,7 +152,8 @@ public final class RestAlert {
 
     /** Runs off the main thread. Holds the CPU until the tone has finished. */
     public static void fire(Context ctx, Intent intent) {
-        if (!claim(intent.getLongExtra("at", 0))) return;
+        long at = intent.getLongExtra("at", 0);
+        if (!claim(at)) return;
         PowerManager.WakeLock cpu = null;
         try {
             PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
@@ -160,22 +165,18 @@ public final class RestAlert {
             // its bar says Ready. A tone and a banner on top would say it twice. Asking the page
             // to hush this alarm instead raced it: the page's last tick and this alarm land in
             // the same few milliseconds, and whichever came first decided.
-            if (RestAlertPlugin.appInFront()) {
-                stopCountdown(ctx);
-                return;
-            }
-            pokeScreen(ctx);
+            if (RestAlertPlugin.appInFront(ctx)) return;
             boolean vibrate = intent.getBooleanExtra("vibrate", true);
             boolean shown = showNotification(ctx, intent);
             // Settings → Vibrate off is off here too: without notifications this buzz is the alert.
             if (!shown && vibrate) vibrateFallback(ctx);
-            // The countdown card is the foreground-service notification. Drop it once the
-            // "rest over" alert is up, including when the WebView is frozen.
-            stopCountdown(ctx);
             // Locked or in the background, the page cannot play its chime, so this is the one.
             boolean play = intent.getBooleanExtra("sound", true);
             if (play) playSound(ctx);
         } finally {
+            // Android 15 requires the foreground service for audio focus while locked.
+            // An alert finishing late must not stop a new countdown.
+            stopCountdownAt(ctx, at);
             if (cpu != null && cpu.isHeld()) cpu.release();
         }
     }
@@ -189,19 +190,6 @@ public final class RestAlert {
     private static boolean canExact(AlarmManager am) {
         if (Build.VERSION.SDK_INT < 31) return true;
         return am.canScheduleExactAlarms();
-    }
-
-    @SuppressWarnings("deprecation")
-    private static void pokeScreen(Context ctx) {
-        // Best effort so the notification is already lit. Newer Android builds ignore
-        // ACQUIRE_CAUSES_WAKEUP; the posted notification is what the shade still shows.
-        try {
-            PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
-            PowerManager.WakeLock screen = pm.newWakeLock(
-                    PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
-                    "opengym:rest-screen");
-            screen.acquire(3000);
-        } catch (Exception ignored) { /* */ }
     }
 
     @SuppressWarnings("deprecation")
@@ -298,7 +286,8 @@ public final class RestAlert {
         } catch (Exception ignored) { /* */ }
     }
 
-    static void updateAlarm(Context ctx, long at) {
+    static synchronized void updateAlarm(Context ctx, long at) {
+        countdownEnd = at;
         if (at <= System.currentTimeMillis()) {
             cancelAlarmOnly(ctx, NOTIFICATION_ID);
             return;
@@ -329,7 +318,8 @@ public final class RestAlert {
         am.cancel(pi);
     }
 
-    static void startCountdown(Context ctx, long endsAt, long totalMs, String title) {
+    static synchronized void startCountdown(Context ctx, long endsAt, long totalMs, String title) {
+        countdownEnd = endsAt;
         Intent i = new Intent(ctx, RestTimerService.class);
         i.putExtra("endsAt", endsAt);
         i.putExtra("totalMs", totalMs);
@@ -349,7 +339,12 @@ public final class RestAlert {
         }
     }
 
-    static void stopCountdown(Context ctx) {
+    private static synchronized void stopCountdownAt(Context ctx, long at) {
+        if (at > 0 && countdownEnd == at) stopCountdown(ctx);
+    }
+
+    static synchronized void stopCountdown(Context ctx) {
+        countdownEnd = 0;
         try {
             ctx.stopService(new Intent(ctx, RestTimerService.class));
         } catch (Exception ignored) { /* already gone */ }
@@ -459,53 +454,62 @@ public final class RestAlert {
     }
 
     private static void playClip(Context ctx, short[] samples) {
+        AudioManager audio = ctx.getSystemService(AudioManager.class);
+        AudioFocusRequest focus = null;
+        boolean focusGranted = false;
         AudioTrack track = null;
         try {
             int bytes = samples.length * 2;
             int min = AudioTrack.getMinBufferSize(RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-            if (min > bytes) {
-                short[] padded = new short[(min / 2) + 1];
-                System.arraycopy(samples, 0, padded, 0, samples.length);
-                samples = padded;
-                bytes = samples.length * 2;
-            }
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
             track = new AudioTrack.Builder()
-                    .setAudioAttributes(new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .build())
+                    .setAudioAttributes(attributes)
                     .setAudioFormat(new AudioFormat.Builder()
                             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                             .setSampleRate(RATE)
                             .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                             .build())
-                    .setBufferSizeInBytes(bytes)
+                    .setBufferSizeInBytes(Math.max(bytes, min))
                     .setTransferMode(AudioTrack.MODE_STATIC)
                     .build();
             if (track.getState() != AudioTrack.STATE_INITIALIZED) return;
-            track.write(samples, 0, samples.length);
-            track.setVolume(1f);
-            stopCurrent();
-            current = track;
+            int written = track.write(samples, 0, samples.length);
+            if (written <= 0 || audio == null) return;
+
+            // Use the same media route as music. Briefly lower other audio when Android allows it.
+            AtomicBoolean lostFocus = new AtomicBoolean();
+            focus = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                    .setAudioAttributes(attributes)
+                    .setOnAudioFocusChangeListener(change -> {
+                        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                            lostFocus.set(true);
+                        }
+                    })
+                    .build();
+            focusGranted = audio.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+            if (!focusGranted) {
+                Log.w("openGym", "rest tone audio focus denied");
+                return;
+            }
             track.play();
-            Thread.sleep((samples.length * 1000L / RATE) + 60);
+            // Wait for playback to advance instead of assuming the Bluetooth route starts instantly.
+            long deadline = SystemClock.elapsedRealtime() + written * 1000L / RATE + 2000;
+            while (!lostFocus.get() && track.getPlaybackHeadPosition() < written && SystemClock.elapsedRealtime() < deadline) {
+                Thread.sleep(20);
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } catch (Exception ignored) { /* the notification still posted */ }
-        finally {
+        } catch (Exception e) {
+            Log.w("openGym", "could not play rest tone", e);
+        } finally {
             if (track != null) {
-                try { track.pause(); } catch (Exception ignored) { /* */ }
-                try { track.release(); } catch (Exception ignored) { /* */ }
-                if (current == track) current = null;
+                try { track.release(); } catch (Exception ignored) { /* already released */ }
             }
+            if (focusGranted) audio.abandonAudioFocusRequest(focus);
         }
-    }
-
-    private static synchronized void stopCurrent() {
-        if (current == null) return;
-        try { current.pause(); } catch (Exception ignored) { /* */ }
-        try { current.release(); } catch (Exception ignored) { /* */ }
-        current = null;
     }
 
     /** Same three tones the in-page beep uses (880, 880, 1320), at full scale. */

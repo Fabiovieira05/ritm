@@ -16,7 +16,7 @@ describe('Brazilian Portuguese locale', () => {
   })
 
   test('matches the source key set and preserves interpolation placeholders', () => {
-    expect(Object.keys(ptBR).sort()).toEqual([...Object.keys(pt), 'Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M'].sort())
+    expect(Object.keys(ptBR).sort()).toEqual([...Object.keys(pt), 'Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M', 'Custom color', 'Choose color'].sort())
     for (const [source, translated] of Object.entries(ptBR)) {
       expect(placeholders(translated), source).toEqual(placeholders(source))
     }

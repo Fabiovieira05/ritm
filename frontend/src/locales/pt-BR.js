@@ -1019,5 +1019,6 @@ export default {
   'RITM INTELLIGENCE': 'INTELIGÊNCIA RITM',
   'RITM · FREE AI': 'RITM · IA GRATUITA',
   'FOUNDATION': 'BASE DO PROJETO',
+  'Custom color': 'Cor personalizada', 'Choose color': 'Escolher cor',
   '1Y': '1 ano', '1M': '1 mês', '3M': '3 meses',
 }

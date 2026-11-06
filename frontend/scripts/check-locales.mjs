@@ -40,7 +40,7 @@ const union = [...seen.keys()]
 
 // This personal fork adds these UI translations only for Brazilian Portuguese.
 // Other packs retain their English fallback; shared keys still require full coverage.
-const ptBROnly = new Set(['Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M'])
+const ptBROnly = new Set(['Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M', 'Custom color', 'Choose color'])
 
 // t('…{0}…', x) substitutes by index, so a translation that loses a {0} drops the number out of
 // the sentence and one that invents a {1} prints the braces at the reader. The KEY is the English

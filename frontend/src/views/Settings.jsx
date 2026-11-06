@@ -23,6 +23,7 @@ import { syncMedia, fetchToStore } from '../lib/media-sync.js'
 import { getMediaStatus, subscribeMediaStatus, pendingRefCount } from '../lib/media-owed.js'
 import { limitsFrom, fmtMB, MB } from '../lib/media-limits.js'
 import { setRestAccent } from '../lib/rest-alert.js'
+import { normalizeAccent } from '../lib/accent.js'
 import { forgetCoach } from '../lib/coach-api.js'
 import { starterPlanSheet, confirmSheet, importFromApp, importFromHevy, equipmentProfileSheet, plateInventorySheet, menuSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
@@ -52,6 +53,12 @@ export default function Settings() {
   const fileRef = useRef(null)
   const importRef = useRef(null)
   const wakeOK = wakeLockSupported()
+  const [accentDraft, setAccentDraft] = useState(() => normalizeAccent(S.accent) || '')
+  const customAccent = normalizeAccent(accentDraft)
+  const changeAccent = value => {
+    update(s => { s.accent = value })
+    setRestAccent(value)
+  }
 
   // Two honest choices on a unit switch (issue #22): convert the numbers, or keep them and only
   // change the label — the old behaviour, still right for someone who logged in lb all along
@@ -198,7 +205,7 @@ export default function Settings() {
     },
   })
 
-  return <div className="narrow">
+  return <div className="narrow ritm-settings">
     <div className="hdr">
       <button className="iconbtn" onClick={() => nav('/home')} aria-label={t('Home')}><Icon name="chevronLeft" /></button>
       <div style={{ flex: 1, marginInlineStart: 10 }}><h1>{t('Settings')}</h1></div>
@@ -470,9 +477,23 @@ export default function Settings() {
         <div className="swatches">
           {Object.entries(ACCENTS).map(([k, c]) => (
             <button key={k} className={'swatch' + ((S.accent || 'lime') === k ? ' on' : '')}
-              style={{ background: c }} onClick={() => { update(s => { s.accent = k }); setRestAccent(k) }} aria-label={t(ACCENT_NAMES[k] || k)} />
+              style={{ background: c }} onClick={() => changeAccent(k)} aria-pressed={S.accent === k} aria-label={t(ACCENT_NAMES[k] || k)} />
           ))}
         </div>
+        <form className="ritm-accent-form" onSubmit={event => {
+          event.preventDefault()
+          if (customAccent) changeAccent(customAccent)
+        }}>
+          <label htmlFor="custom-accent">{t('Custom color')}</label>
+          <div className="ritm-accent-fields">
+            <input type="color" aria-label={t('Choose color')} value={customAccent?.slice(0, 7) || (Object.hasOwn(ACCENTS, S.accent) ? ACCENTS[S.accent] : ACCENTS.lime)}
+              onChange={event => setAccentDraft(event.target.value + (customAccent?.slice(7) || ''))} />
+            <input id="custom-accent" className="field" type="text" value={accentDraft} onChange={event => setAccentDraft(event.target.value)}
+              placeholder="#FF453A" autoComplete="off" spellCheck={false} aria-describedby="custom-accent-formats" />
+            <Button type="submit" size="sm" disabled={!customAccent}>{t('Save')}</Button>
+          </div>
+          <small className="muted" id="custom-accent-formats">#RRGGBB / #RRGGBBAA / rgb(255, 69, 58) / rgba(255, 69, 58, 0.8)</small>
+        </form>
       </div>
     </Section>
 
