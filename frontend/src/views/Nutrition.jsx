@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import { todayISO, isoOf } from '../lib/format.js'
@@ -10,6 +10,8 @@ import PersonalNutritionSummary from '../components/PersonalNutritionSummary.jsx
 import PersonalFoodPicker, { nutrientText } from '../components/PersonalFoodPicker.jsx'
 import PersonalFoodEditor, { NutrientFields } from '../components/PersonalFoodEditor.jsx'
 import PersonalRecipeEditor from '../components/PersonalRecipeEditor.jsx'
+import NutritionReminderSettings from '../components/NutritionReminderSettings.jsx'
+import { validDate } from '../lib/personal/time.js'
 import PersonalMealPlan from '../components/PersonalMealPlan.jsx'
 import { mealDraftFromPlan, upsertPlannedMeal } from '../lib/personal/meal-plan.js'
 import { mealCountText } from '../lib/personal/ui-format.js'
@@ -20,10 +22,15 @@ import '../personal.css'
 const localTime = at => { const date = new Date(at); return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}` }
 
 export default function Nutrition() {
+  const location = useLocation()
+  return <NutritionPage key={location.key} query={new URLSearchParams(location.search)} />
+}
+
+function NutritionPage({ query }) {
   const S = useStore(state => state.S)
   const nav = useNavigate()
-  const [date, setDate] = useState(todayISO())
-  const [view, setView] = useState('diary')
+  const [date, setDate] = useState(() => validDate(query.get('date')) ? query.get('date') : todayISO())
+  const [view, setView] = useState(query.get('view') === 'plan' ? 'plan' : 'diary')
   const [meal, setMeal] = useState(null)
   const [planContext, setPlanContext] = useState(null)
   const [selected, setSelected] = useState(null)
@@ -74,7 +81,8 @@ export default function Nutrition() {
     <div className="hdr"><div><h1>{t('Nutrition')}</h1><div className="sub">{t('A little care, every day')}</div></div><Button variant="tinted" size="sm" icon="sparkles" onClick={() => nav('/weekly')}>{t('Weekly review')}</Button></div>
     <div className="ritm-date-navigation"><button className="iconbtn" aria-label={t('Previous day')} onClick={() => adjacentDate(-1)}><Icon name="chevronLeft" /></button><label className="ritm-date-field"><Icon name="calendar" /><TextField type="date" aria-label={t('Diary date')} value={date} onChange={event => changeDate(event.target.value)} /></label><button className="iconbtn" aria-label={t('Next day')} onClick={() => adjacentDate(1)}><Icon name="chevronRight" /></button>{date !== todayISO() && <Button size="sm" variant="ghost" onClick={() => changeDate(todayISO())}>{t('Today')}</Button>}</div>
     <Segmented className="ritm-nutrition-tabs" value={view} options={[{ value: 'diary', label: t('Diary'), icon: 'nutrition' }, { value: 'plan', label: t('Meal plan'), icon: 'calendar' }]} onChange={value => { setView(value); setMeal(null); setPlanContext(null); setSelected(null); setError('') }} />
-    {view === 'plan' && <div style={meal ? { display: 'none' } : undefined}><PersonalMealPlan date={date} onRecord={(plan, planned) => { const draft = mealDraftFromPlan(plan, planned); beginMeal(); setMeal({ ...draft, time: draft.time || localTime(Date.now()) }) }}
+    {!meal && <NutritionReminderSettings open={query.has('water')} />}
+    {view === 'plan' && <div style={meal ? { display: 'none' } : undefined}><PersonalMealPlan date={date} initialPlanId={query.get('planId')} mealId={query.get('mealId')} dayId={query.get('dayId')} onRecord={(plan, planned) => { const draft = mealDraftFromPlan(plan, planned); beginMeal(); setMeal({ ...draft, time: draft.time || localTime(Date.now()) }) }}
       onEdit={(plan, dayId, planned) => { setPlanContext({ planId: plan.id, dayId }); setMeal(planned ? { ...mealDraftFromPlan(plan, planned), id: planned.id, time: planned.time || '' } : { name: '', time: '', items: [], note: '' }); setSelected(null); setError('') }} /></div>}
     {view === 'diary' && !meal && <>
       <PersonalNutritionSummary summary={summary} target={target} />

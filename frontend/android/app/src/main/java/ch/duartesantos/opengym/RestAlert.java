@@ -475,9 +475,10 @@ public final class RestAlert {
                     .setBufferSizeInBytes(Math.max(bytes, min))
                     .setTransferMode(AudioTrack.MODE_STATIC)
                     .build();
-            if (track.getState() != AudioTrack.STATE_INITIALIZED) return;
+            // MODE_STATIC starts in STATE_NO_STATIC_DATA. Writing the PCM makes it playable.
+            if (track.getState() == AudioTrack.STATE_UNINITIALIZED) return;
             int written = track.write(samples, 0, samples.length);
-            if (written <= 0 || audio == null) return;
+            if (written <= 0 || track.getState() != AudioTrack.STATE_INITIALIZED || audio == null) return;
 
             // Use the same media route as music. Briefly lower other audio when Android allows it.
             AtomicBoolean lostFocus = new AtomicBoolean();

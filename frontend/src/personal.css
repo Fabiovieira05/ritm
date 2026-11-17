@@ -104,3 +104,11 @@
 .ritm-weekly-next strong { font-variant-numeric: tabular-nums; color: var(--acc); }
 .ritm-weekly-journal { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: var(--hair) solid var(--sep); padding-top: 14px; }
 .ritm-weekly-journal > div { flex: 1; min-width: 160px; }
+
+.ritm-nutrition-reminders > summary { cursor: pointer; font-weight: 600; }
+.ritm-nutrition-reminders > :not(summary) { margin-top: 12px; }
+.ritm-water-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+.ritm-water-options label { display: grid; gap: 4px; font-size: 12px; }
+.ritm-water-options .field { width: 100%; min-width: 0; }
+.ritm-nutrition-reminders ul { padding-inline-start: 20px; }
+.ritm-planned-meal { scroll-margin-top: calc(var(--sat) + var(--conn) + 16px); }

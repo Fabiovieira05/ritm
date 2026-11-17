@@ -16,7 +16,7 @@ describe('Brazilian Portuguese locale', () => {
   })
 
   test('matches the source key set and preserves interpolation placeholders', () => {
-    expect(Object.keys(ptBR).sort()).toEqual([...Object.keys(pt), 'Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M', 'Custom color', 'Choose color'].sort())
+    expect(Object.keys(ptBR).sort()).toEqual([...Object.keys(pt), 'Retry', 'RITM INTELLIGENCE', 'RITM · FREE AI', 'FOUNDATION', '1Y', '1M', '3M', 'Custom color', 'Choose color', 'Nutrition reminders', 'Meal reminders', 'View meal quantities', 'Water reminder', 'Cumulative water goal by {0}: {1} ml', 'Check Android notification permission', 'Estimated daily water goal', 'Adjust the estimate for your routine. The reminders are cumulative goals.', 'Water per kg (ml)', 'Bedtime', 'Last reminder before bed', 'Log your weight on Home to calculate a water goal.'].sort())
     for (const [source, translated] of Object.entries(ptBR)) {
       expect(placeholders(translated), source).toEqual(placeholders(source))
     }

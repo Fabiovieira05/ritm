@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import { MOBILE, shareExport } from '../lib/mobile.js'
@@ -8,6 +8,7 @@ import PersonalMealPlanEditor, { planDayLabel } from './PersonalMealPlanEditor.j
 import { nutrientText } from './PersonalFoodPicker.jsx'
 import { mealCountText } from '../lib/personal/ui-format.js'
 import { parseMealPlan, mealPlanDocument, saveMealPlan, mealsForDate, createBlankMealPlan, MEAL_PLAN_EXAMPLE } from '../lib/personal/meal-plan.js'
+import { activeMealPlan } from '../lib/personal/nutrition-reminders.js'
 import { deletePersonalRecord, setNutritionTargets } from '../lib/personal/store-actions.js'
 
 async function sharePlan(doc, name) {
@@ -26,11 +27,19 @@ function ImportPreview({ plan }) {
     <div className="ritm-preview-days">{plan.days.map(day => <div key={day.id} className="personal-stack"><strong>{planDayLabel(day)}</strong>{day.meals.map(meal => <div key={meal.id}><p>{meal.time || '—'} · {meal.name}</p><p className="small muted">{meal.items.length ? meal.items.map(item => `${item.food.name} · ${item.grams} ${t('g')}`).join(', ') : t('Add foods when you are ready')}</p></div>)}</div>)}</div>
   </div>
 }
-export default function PersonalMealPlan({ date, onRecord, onEdit }) {
+export default function PersonalMealPlan({ date, onRecord, onEdit, initialPlanId, mealId, dayId }) {
   const S = useStore(state => state.S)
   const plans = (S.nutrition?.mealPlans || []).filter(p => !p.deletedAt).sort((a, b) => b.updatedAt - a.updatedAt)
-  const [selectedId, setSelectedId] = useState(null)
-  const plan = plans.find(p => p.id === selectedId) || plans[0]
+  const [selectedId, setSelectedId] = useState(initialPlanId)
+  const plan = activeMealPlan(S, selectedId)
+  const mealRef = useRef(null)
+  useEffect(() => {
+    if (mealId) mealRef.current?.scrollIntoView?.({ block: 'start' })
+  }, [mealId, dayId, plan?.id, date])
+  const selectPlan = id => {
+    setSelectedId(id)
+    useStore.getState().update(state => { state.activeMealPlanId = id })
+  }
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [text, setText] = useState(null)
@@ -50,22 +59,22 @@ export default function PersonalMealPlan({ date, onRecord, onEdit }) {
   }
   const meals = plan ? mealsForDate(plan, date) : []
   const share = (doc, filename) => sharePlan(doc, filename).catch(error => setMessage(error.message))
-  function create() { const blank = createBlankMealPlan(); save(blank); setSelectedId(blank.id); setEditing(true); setMessage('') }
+  function create() { const blank = createBlankMealPlan(); save(blank); selectPlan(blank.id); setEditing(true); setMessage('') }
   return <div className="personal-stack ritm-meal-plan">
     <input ref={fileRef} type="file" accept=".json,.csv,.tsv,.txt,application/json,text/csv,text/plain" style={{ display: 'none' }} onChange={readFile} />
-    {preview && <section className="card personal-stack"><ImportPreview plan={preview} /><div className="ritm-editor-actions"><Button variant="primary" onClick={() => { save(preview); setSelectedId(preview.id); setPreview(null); setText(null); setEditing(false); setMessage(t('Meal plan saved')) }}>{t('Save plan')}</Button><Button variant="ghost" onClick={() => setPreview(null)}>{t('Cancel')}</Button></div></section>}
+    {preview && <section className="card personal-stack"><ImportPreview plan={preview} /><div className="ritm-editor-actions"><Button variant="primary" onClick={() => { save(preview); selectPlan(preview.id); setPreview(null); setText(null); setEditing(false); setMessage(t('Meal plan saved')) }}>{t('Save plan')}</Button><Button variant="ghost" onClick={() => setPreview(null)}>{t('Cancel')}</Button></div></section>}
     {plan ? <>
       {editing ? <PersonalMealPlanEditor plan={plan} onSave={save} onMealEdit={onEdit} onClose={() => setEditing(false)} /> : <>
         <section className="card personal-stack ritm-plan-overview">
           <div className="ritm-section-heading"><div><span className="ritm-eyebrow">{t('Your routine')}</span><h2>{plan.name}</h2></div><span className="ritm-icon-tile"><Icon name="calendar" /></span></div>
-          {plans.length > 1 && <label>{t('Active plan')}<select className="field" value={plan.id} onChange={event => { setSelectedId(event.target.value); setDeleting(false) }}>{plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
+          {plans.length > 1 && <label>{t('Active plan')}<select className="field" value={plan.id} onChange={event => { selectPlan(event.target.value); setDeleting(false) }}>{plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
           {plan.note && <p className="muted">{plan.note}</p>}
           {(plan.from || plan.to) && <p className="small muted">{plan.from || '…'} — {plan.to || '…'}</p>}
           <div className="ritm-editor-actions"><Button variant="tinted" icon="pencil" onClick={() => setEditing(true)}>{t('Edit meal plan')}</Button><Button variant="ghost" icon="share" onClick={() => share(mealPlanDocument(plan), 'ritm-meal-plan.json')}>{t('Share meal plan')}</Button></div>
         </section>
         <div className="ritm-section-heading"><h2>{t('Planned for this day')}</h2><span className="small muted">{meals.length ? mealCountText(meals.length) : ''}</span></div>
         {!meals.length && <div className="card ritm-empty"><Icon name="nutrition" /><h3>{t('Make room for your routine')}</h3><p>{t('No planned meals for this date. Fill the plan gradually.')}</p><Button variant="tinted" onClick={() => setEditing(true)}>{t('Edit meal plan')}</Button></div>}
-        {meals.map(meal => <section className="card personal-stack ritm-planned-meal" key={meal.id}>
+        {meals.map(meal => <section className="card personal-stack ritm-planned-meal" key={meal.dayId + meal.id} ref={meal.id === mealId && (!dayId || meal.dayId === dayId) ? mealRef : null}>
           <div className="ritm-section-heading"><div className="row"><span className="ritm-icon-tile"><Icon name="nutrition" /></span><div><span className="ritm-eyebrow">{meal.time || t('Any time')}</span><h3>{meal.name}</h3></div></div><button className="iconbtn" aria-label={t('Edit planned meal')} onClick={() => onEdit(plan, meal.dayId, meal)}><Icon name="pencil" /></button></div>
           <div className="ritm-plan-foods">{meal.items.map((item, index) => <div key={index}><span>{item.food.name}</span><strong>{item.grams} {t('g')}</strong></div>)}</div>
           {!meal.items.length && <p className="small muted">{t('Add foods when you are ready')}</p>}
